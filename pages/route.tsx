@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow, DirectionsRenderer } from '@react-google-maps/api';
 import Layout from './layout';
-
+import { useLocation } from "../store/locationstore";
 
 const containerStyle = {
   width: '100%',
@@ -11,24 +11,18 @@ const containerStyle = {
 const defaultCenter = { lat: 41.0082, lng: 28.9784 }; // İstanbul'un koordinatları
 
 interface Location {
-  id: number;
+  id: string;
   name: string;
-  position: { lat: number; lng: number };
-  color: string;
+  lat: number;
+  lng: number;
+  color: string; // Renk bilgisi
 }
 
 const RouteMap = () => {
-  const [locations, setLocations] = useState<Location[]>([]);
+  const { locations } = useLocation();
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number }>({ lat: 41.0082, lng: 28.9784 });
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
-
-  useEffect(() => {
-    setLocations([
-      { id: 1, name: 'Yer 1', position: { lat: 40.73061, lng: -73.935242 }, color: 'red' },
-      { id: 2, name: 'Yer 2', position: { lat: 40.650002, lng: -73.949997 }, color: 'blue' },
-    ]);
-  }, []);
 
   const handleMapClick = (event: google.maps.MapMouseEvent) => {
     if (event.latLng) {
@@ -42,18 +36,18 @@ const RouteMap = () => {
       return;
     }
 
-    if (locations.length < 2) return; // Yeterli konum yoksa yönlendirme hesaplama
+    if (locations.length < 1) return; // En az bir konum olmalı
 
     const directionsService = new google.maps.DirectionsService();
     const waypoints = locations.map(location => ({
-      location: new google.maps.LatLng(location.position.lat, location.position.lng),
+      location: new google.maps.LatLng(location.lat, location.lng),
       stopover: true,
     }));
 
     directionsService.route(
       {
-        origin: new google.maps.LatLng(locations[0].position.lat, locations[0].position.lng),
-        destination: new google.maps.LatLng(locations[1].position.lat, locations[1].position.lng),
+        origin: new google.maps.LatLng(userLocation.lat, userLocation.lng), // Kullanıcının mevcut konumu
+        destination: new google.maps.LatLng(locations[0].lat, locations[0].lng), // İlk konum
         waypoints: waypoints,
         travelMode: google.maps.TravelMode.DRIVING,
       },
@@ -71,11 +65,11 @@ const RouteMap = () => {
     if (locations.length > 0) {
       calculateRoute();
     }
-  }, [locations]);
+  }, [locations, userLocation]); // Kullanıcı konumu değiştiğinde rota hesapla
 
   return (
     <Layout>
-      <LoadScript googleMapsApiKey="AIzaSyCUW0vfIb4ZfVSjLl6qFfSTi-JFES1RdZk">
+      <LoadScript googleMapsApiKey="AIzaSyBRlSuaHfDUbiuWJOUQrEMxcBMiuTfc32U">
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={defaultCenter}
@@ -85,18 +79,26 @@ const RouteMap = () => {
           {locations.map(location => (
             <Marker
               key={location.id}
-              position={location.position}
+              position={{ lat: location.lat, lng: location.lng }}
               onClick={() => setSelectedLocation(location)}
+              icon={{
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 10,
+                fillColor: location.color, // Kullanıcının seçtiği renk
+                fillOpacity: 1,
+                strokeWeight: 2,
+                strokeColor: '#FFFFFF',
+              }}
             />
           ))}
           {selectedLocation && (
             <InfoWindow
-              position={selectedLocation.position}
+              position={{ lat: selectedLocation.lat, lng: selectedLocation.lng }}
               onCloseClick={() => setSelectedLocation(null)}
             >
               <div>
                 <h2>{selectedLocation.name}</h2>
-                <p>{`Lat: ${selectedLocation.position.lat}, Lng: ${selectedLocation.position.lng}`}</p>
+                <p>{`Lat: ${selectedLocation.lat}, Lng: ${selectedLocation.lng}`}</p>
               </div>
             </InfoWindow>
           )}
