@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { GoogleMap, Marker, LoadScript } from "@react-google-maps/api";
 import { useLocation } from "../store/locationstore";
 import { v4 as uuidv4 } from "uuid";
+import Layout from './layout';
 
 const containerStyle = {
   width: "100%",
@@ -38,37 +39,37 @@ const AddPage = () => {
   };
 
   return (
-    <LoadScript googleMapsApiKey="AIzaSyBRlSuaHfDUbiuWJOUQrEMxcBMiuTfc32U">
-      <div style={{ marginBottom: "10px" }}>
-        <input
-          type="text"
-          placeholder="Konum Adı"
-          value={locationName}
-          onChange={(e) => setLocationName(e.target.value)}
-          style={{ marginRight: "8px", padding: "5px" }}
-        />
-        <input
-          type="color"
-          value={markerColor}
-          onChange={(e) => setMarkerColor(e.target.value)}
-          style={{ width: "40px", height: "40px", border: "none" }}
-        />
-        <button style={{ marginTop: "10px" }} onClick={handleSave}>
-        Kaydet
-        </button>
-      </div>
+    <Layout>
+      <LoadScript googleMapsApiKey="AIzaSyBRlSuaHfDUbiuWJOUQrEMxcBMiuTfc32U">
+        <div style={{ marginBottom: "10px" }}>
+          <input
+            type="text"
+            placeholder="Konum Adı"
+            value={locationName}
+            onChange={(e) => setLocationName(e.target.value)}
+            style={{ marginRight: "8px", padding: "5px" }}
+          />
+          <input
+            type="color"
+            value={markerColor}
+            onChange={(e) => setMarkerColor(e.target.value)}
+            style={{ width: "40px", height: "40px", border: "none" }}
+          />
+          <button style={{ marginTop: "10px" }} onClick={handleSave}>
+          Kaydet
+          </button>
+        </div>
 
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={{ lat: latitude, lng: longitude }}
-        zoom={12}
-        onClick={handleMapClick}
-      >
-        <Marker position={{ lat: latitude, lng: longitude }} />
-      </GoogleMap>
-
-      
-    </LoadScript>
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={{ lat: latitude, lng: longitude }}
+          zoom={12}
+          onClick={handleMapClick}
+        >
+          <Marker position={{ lat: latitude, lng: longitude }} />
+        </GoogleMap>
+      </LoadScript>
+    </Layout>
   );
 };
 

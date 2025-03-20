@@ -2,6 +2,8 @@ import React from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import AddPage from "./add";
 import ListPage from "./list";
+import RouteMap from "./route";
+import 'leaflet/dist/leaflet.css';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -34,7 +36,7 @@ const Home = () => {
   );
 };
 
-const RoutePage = () => <h1>Rota Gösterme Sayfası (Henüz Yapılmadı)</h1>;
+const RoutePage = () => <RouteMap />;
 
 export default function App() {
   return (
